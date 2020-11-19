@@ -6,20 +6,26 @@ const mongoose = require('mongoose');
 
 const familyRoutes = require('./api/routes/family');
 const inviteRoutes = require('./api/routes/invite');
-const userRoutes = require('./api/routes/user')
+const userRoutes = require('./api/routes/user');
+
+const MONGO_HOST = process.env.MONGO_HOST || 'localhost' ;
+const MONGO_PORT = process.env.MONGO_PORT || '27017' ;
+const mongoUrl = "mongodb://" + MONGO_HOST + ":" + MONGO_PORT + "/cohomedb";
 
 mongoose.connect(
-    "mongodb+srv://node-shop:"
-    + process.env.MONGO_ATLAS_PW + 
-    "@cohome.myct4.mongodb.net/"
-    + process.env.MONGO_ATLAS_NAME + 
-    "?retryWrites=true&w=majority",
+    mongoUrl,
     {
         //useMongoClient: true,
         useUnifiedTopology : true,
         useNewUrlParser : true
     }
-);
+)
+.then(()=>{
+    console.log("Connected to mongodb with url : " + mongoUrl);
+})
+.catch(err => {
+    console.log("Connection to DB failed. Reason : " + err);
+})
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
