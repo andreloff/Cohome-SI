@@ -175,14 +175,7 @@ router.post('/signup', (req, res, next) => {
                         _id: new mongoose.Types.ObjectId(),
                         inviteList: []
                     })
-                    _invites.save()
-                        .then(result => {
-                            console.log("Invite list created" + result);
-                        })
-                        .catch(err => {
-                            console.log("Error in invite list creation" + err);
-                            return res.status(500).json({error: err});
-                        });
+                    
         
                     const user = new User({
                         _id: new mongoose.Types.ObjectId(),
@@ -193,6 +186,9 @@ router.post('/signup', (req, res, next) => {
                         family : null
                         //birthTime: req.body.birthTime
                     }); 
+
+                    
+
                     user.save()
                     .then(result => {
                         console.log(result);
@@ -204,6 +200,15 @@ router.post('/signup', (req, res, next) => {
                         console.log(err);
                         res.status(500).json({error: err});
                     });
+
+                    _invites.save()
+                        .then(result => {
+                            console.log("Invite list created" + result);
+                        })
+                        .catch(err => {
+                            console.log("Error in invite list creation" + err);
+                            return res.status(500).json({error: err});
+                        });
                 }
             });
         }
