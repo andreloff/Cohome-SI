@@ -1,0 +1,7 @@
+{
+    "env": {
+        "MONGO_ATLAS_PW": "cohomemulanblue",
+        "MONGO_ATLAS_NAME": "cohome",
+        "JWT_KEY": "saske"
+    }
+}
