@@ -38,7 +38,7 @@ router.get('/', (req, res, next) => {
         });
 })
 
-router.get('/:userId', (req, res, next) => {
+router.get('/:userId',checkAuth, (req, res, next) => {
 
     //Pega usuario especifico, identificado pelo id
 
@@ -73,7 +73,7 @@ router.get('/:userId', (req, res, next) => {
         });
 })
 
-router.get('/:userId/invites', (req, res, next) => {
+router.get('/:userId/invites',checkAuth, (req, res, next) => {
 
     //Pega lista de convites de um usuario especifico identificado pelo id
 
@@ -119,7 +119,7 @@ router.get('/:userId/invites', (req, res, next) => {
         });
 })
 
-router.delete('/:userId/invites', (req, res, next) => {
+router.delete('/:userId/invites', checkAuth, (req, res, next) => {
 
     //Retira um convite, especificado pelo familyId (passado no body), da lista do usuario.
 
@@ -154,35 +154,26 @@ router.post('/signup', (req, res, next) => {
 
     //Cadastro de um novo usuário
 
-    console.log("saske1");
-    console.log(req.body);
-    console.log(req.body.password);
-
     User.find({email: req.body.email})
     .exec()
     .then(user => {
-        //console.log(user);
         if(user.length >= 1){
             return res.status(409).json({
-                message: 'Mail exists'
+                message: 'Email já existente.'
             });
         }
         else{
-            console.log("saske2");
             bcrypt.hash(req.body.password, 10, (err, hash) => {
                 if(err) {
-                    console.log("saske7");
                     return res.status(500).json({
                         errorCode: err.code,
                         errorMes: err.message
                     });
                 }else {
-                    console.log("saske3");
                     const _invites = new InviteList({
                         _id: new mongoose.Types.ObjectId(),
                         inviteList: []
                     })
-                    console.log("saske4");
         
                     const user = new User({
                         _id: new mongoose.Types.ObjectId(),
@@ -193,8 +184,6 @@ router.post('/signup', (req, res, next) => {
                         family : null
                         //birthTime: req.body.birthTime
                     }); 
-
-                    console.log("saske5");
 
                     user.save()
                     .then(result => {
@@ -208,7 +197,7 @@ router.post('/signup', (req, res, next) => {
                             });
                         })
                         .catch(err => {
-                            console.log("Error in invite list creation" + err);
+                            console.log("Error in invite list creation " + err);
                             return res.status(500).json({error: err});
                         });
                     })
@@ -223,7 +212,6 @@ router.post('/signup', (req, res, next) => {
         }
     })
     .catch(err => {
-        console.log("saske6");
         console.log(err);
         res.status(500).json({error: err});
     });
@@ -261,7 +249,8 @@ router.post('/login', (req, res, next) => {
                 );
                 return res.status(200).json({
                     message: 'Auth successful',
-                    token: token
+                    token: token,
+                    id: user[0]._id
                 })
             }
             return res.status(401).json({

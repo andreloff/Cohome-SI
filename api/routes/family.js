@@ -45,7 +45,7 @@ router.get('/',(req, res, next) => {
 
 })
 
-router.get('/:familyId',(req, res, next) => {
+router.get('/:familyId',checkAuth,(req, res, next) => {
 
     //Pega familia especifica pelo id
 
@@ -84,7 +84,7 @@ router.get('/:familyId',(req, res, next) => {
 
 })
 
-router.post('/', (req, res, next) => {
+router.post('/',checkAuth, (req, res, next) => {
 
     //Cria nova familia, já atualizando o perfil do admin com a familia criada
 
@@ -163,7 +163,7 @@ router.post('/', (req, res, next) => {
     
 });
 
-router.post('/:familyId/invite', (req, res, next) => {
+router.post('/:familyId/invite', checkAuth,(req, res, next) => {
 
     //Cria novo convite da família e envia para o usuario, identificado pelo email, 
     // primeiro checando na lista de convites do usuario se ele ja nao foi convidado
@@ -239,7 +239,7 @@ router.post('/:familyId/invite', (req, res, next) => {
 });
 
 
-router.get('/:familyId/members', (req, res, next) => {
+router.get('/:familyId/members', checkAuth,(req, res, next) => {
 
     //Pega todos os membros de uma familia especifica, dado o id da familia
 
@@ -268,7 +268,7 @@ router.get('/:familyId/members', (req, res, next) => {
         });
 });
 
-router.post('/:familyId/members', (req, res, next) => {
+router.post('/:familyId/members',checkAuth, (req, res, next) => {
 
     ///Adiciona membro na familia, primeiro checando se o usuario ja tem familia
     /// atualizando a lista de convites do usuario
@@ -339,7 +339,7 @@ router.post('/:familyId/members', (req, res, next) => {
     
 });
 
-router.get('/:familyId/buylist', (req, res, next) => {
+router.get('/:familyId/buylist',checkAuth, (req, res, next) => {
 
     //Pega a lista de compras de uma familia especifica, dado o id da familia
 
@@ -371,7 +371,7 @@ router.get('/:familyId/buylist', (req, res, next) => {
     
 });
 
-router.post('/:familyId/buylist', (req, res, next) => {
+router.post('/:familyId/buylist',checkAuth, (req, res, next) => {
 
     //Adiciona produtos a lista de compras da familia, ja atualizando
 
@@ -397,7 +397,7 @@ router.post('/:familyId/buylist', (req, res, next) => {
     
 });
 
-router.patch('/:familyId/buylist', (req, res, next) => {
+router.patch('/:familyId/buylist',checkAuth, (req, res, next) => {
 
     //Atualiza a lista de compras depois de uma mudança na lista atual, removendo itens
     // já comprados
