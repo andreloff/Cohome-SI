@@ -155,6 +155,8 @@ router.post('/signup', (req, res, next) => {
     //Cadastro de um novo usuário
 
     console.log("saske1");
+    console.log(req.body);
+    console.log(req.body.password);
 
     User.find({email: req.body.email})
     .exec()
