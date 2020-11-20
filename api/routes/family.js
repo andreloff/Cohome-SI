@@ -50,7 +50,7 @@ router.get('/:familyId',(req, res, next) => {
 
     const id = req.params.familyId;
 
-    User.findById(id)
+    Family.findById(id)
         .exec()
         .then(doc => {
             console.log("From Database", doc);
@@ -60,7 +60,11 @@ router.get('/:familyId',(req, res, next) => {
                     name: doc.name,
                     id: doc._id,
                     admin: doc.admin,
-                    members: doc.members
+                    members: doc.members.map(mem => {
+                        return{
+                            memberId: mem._id
+                        }
+                    })
                 }
 
                 res.status(200).json(result);
@@ -240,17 +244,22 @@ router.get('/:familyId/members', (req, res, next) => {
     Family.findById(req.params.familyId)
         .exec()
         .then(family => {
-            
-            const _members = {
-                membersCount : family.members.length,
-                members: family.members.map ( member => {
-                    return {
-                        memberId: member._id
-                    }
+            if(family){
+                const _members = {
+                    membersCount : family.members.length,
+                    members: family.members.map ( member => {
+                        return {
+                            memberId: member._id
+                        }
+                    })
+                }
+                res.status(200).json(_members);
+            }
+            else{
+                res.status(404).json({
+                    message: "No family found with given Id."
                 })
             }
-
-            res.status(200).json(_members);
         })
         .catch( err => {
             res.status(500).json({error: err});
