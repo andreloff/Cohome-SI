@@ -192,8 +192,17 @@ router.post('/signup', (req, res, next) => {
                     user.save()
                     .then(result => {
                         console.log(result);
-                        res.status(201).json({
-                            message: 'User created'
+
+                        _invites.save()
+                        .then(result => {
+                            console.log("Invite list created" + result);
+                            res.status(201).json({
+                                message: 'User created'
+                            });
+                        })
+                        .catch(err => {
+                            console.log("Error in invite list creation" + err);
+                            return res.status(500).json({error: err});
                         });
                     })
                     .catch(err => {
@@ -201,14 +210,7 @@ router.post('/signup', (req, res, next) => {
                         res.status(500).json({error: err});
                     });
 
-                    _invites.save()
-                        .then(result => {
-                            console.log("Invite list created" + result);
-                        })
-                        .catch(err => {
-                            console.log("Error in invite list creation" + err);
-                            return res.status(500).json({error: err});
-                        });
+                    
                 }
             });
         }
