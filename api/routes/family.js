@@ -25,7 +25,7 @@ router.get('/',(req, res, next) => {
                         name: hmm.name,
                         admin: hmm.admin,
                         id: hmm._id,
-                        buyList: doc.buyList,
+                        buyList: hmm.buyList,
                         membersCount : hmm.members.length,
                         members: hmm.members.map(mem => {
                             return{
@@ -350,8 +350,8 @@ router.get('/:familyId/buylist', (req, res, next) => {
                     .exec()
                     .then( _buyList => {
                         const result = {
-                            count : _buyList.inviteList.length,
-                            invites : _buyList.products.map(prod =>{
+                            count : _buyList.products.length,
+                            products : _buyList.products.map(prod =>{
                                 return {
                                     productName: prod.productName,
                                     productDesc: prod.productDesc
@@ -385,6 +385,7 @@ router.post('/:familyId/buylist', (req, res, next) => {
                     .exec()
                     .then(result => {
                         console.log("Buy list updated!");
+                        res.status(201).json({message : "Product created and list updated!"});
                     })
                     .catch( err => {
                         res.status(500).json({error: err});
@@ -409,6 +410,7 @@ router.patch('/:familyId/buylist', (req, res, next) => {
                     .exec()
                     .then(result => {
                         console.log("Buy list updated!");
+                        res.status(200).json({message: "Buy list updated!"});
                     })
                     .catch( err => {
                         res.status(500).json({error: err});

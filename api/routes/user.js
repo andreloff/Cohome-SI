@@ -171,8 +171,8 @@ router.post('/signup', (req, res, next) => {
                 if(err) {
                     console.log("saske7");
                     return res.status(500).json({
-                        
-                        error: err
+                        errorCode: err.code,
+                        errorMes: err.message
                     });
                 }else {
                     console.log("saske3");
