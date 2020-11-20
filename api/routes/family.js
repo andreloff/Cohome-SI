@@ -15,7 +15,7 @@ router.get('/',(req, res, next) => {
     //Pega todas as familias
 
     Family.find()
-        .select("name admin _id members")
+        .select("name admin _id members buyList")
         .exec()
         .then(docs => {
             const response = {
@@ -25,6 +25,7 @@ router.get('/',(req, res, next) => {
                         name: hmm.name,
                         admin: hmm.admin,
                         id: hmm._id,
+                        buyList: doc.buyList,
                         membersCount : hmm.members.length,
                         members: hmm.members.map(mem => {
                             return{
@@ -60,6 +61,7 @@ router.get('/:familyId',(req, res, next) => {
                     name: doc.name,
                     id: doc._id,
                     admin: doc.admin,
+                    buyList: doc.buyList,
                     members: doc.members.map(mem => {
                         return{
                             memberId: mem._id

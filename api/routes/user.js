@@ -154,6 +154,8 @@ router.post('/signup', (req, res, next) => {
 
     //Cadastro de um novo usuário
 
+    console.log("saske1");
+
     User.find({email: req.body.email})
     .exec()
     .then(user => {
@@ -164,18 +166,21 @@ router.post('/signup', (req, res, next) => {
             });
         }
         else{
+            console.log("saske2");
             bcrypt.hash(req.body.password, 10, (err, hash) => {
                 if(err) {
+                    console.log("saske7");
                     return res.status(500).json({
+                        
                         error: err
                     });
                 }else {
-
+                    console.log("saske3");
                     const _invites = new InviteList({
                         _id: new mongoose.Types.ObjectId(),
                         inviteList: []
                     })
-                    
+                    console.log("saske4");
         
                     const user = new User({
                         _id: new mongoose.Types.ObjectId(),
@@ -187,7 +192,7 @@ router.post('/signup', (req, res, next) => {
                         //birthTime: req.body.birthTime
                     }); 
 
-                    
+                    console.log("saske5");
 
                     user.save()
                     .then(result => {
@@ -214,6 +219,11 @@ router.post('/signup', (req, res, next) => {
                 }
             });
         }
+    })
+    .catch(err => {
+        console.log("saske6");
+        console.log(err);
+        res.status(500).json({error: err});
     });
 
     
