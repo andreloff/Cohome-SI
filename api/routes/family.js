@@ -170,9 +170,7 @@ router.post('/:familyId/invite', checkAuth,(req, res, next) => {
 
     const _famId = req.params.familyId;
 
-    const _invite = {
-        familyId: _famId
-    }
+    
 
     //console.log("bateu aq 1");
 
@@ -204,20 +202,34 @@ router.post('/:familyId/invite', checkAuth,(req, res, next) => {
 
                     if(canInvite)
                     {
-                        InviteList.update(
-                            { _id : invListId},
-                            { $push : {inviteList : _invite}}
-                        ).exec()
-                        .then( result => {
-                            //console.log("bateu aq 4" + result);
-                            res.status(200).json({
-                                message : "Invite created and sent!"
+                        Family.findById(_famId)
+                        .exec()
+                        .then( _fam => {
+                            const _invite = {
+                                familyId: _famId,
+                                familyName: _fam.name
+                            }
+                            InviteList.update(
+                                { _id : invListId},
+                                { $push : {inviteList : _invite}}
+                            ).exec()
+                            .then( result => {
+                                //console.log("bateu aq 4" + result);
+                                res.status(200).json({
+                                    message : "Invite created and sent!"
+                                });
+                            })
+                            .catch(err =>{
+                                console.log(err);
+                                return res.status(500).json({error: err});
                             });
+
                         })
                         .catch(err =>{
                             console.log(err);
                             return res.status(500).json({error: err});
                         });
+                        
                     }
                     else
                     {

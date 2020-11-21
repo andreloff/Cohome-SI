@@ -4,7 +4,8 @@ const inviteSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     inviteList: [
         {
-            familyId: {type : mongoose.Schema.Types.ObjectId, ref: 'Family', required: true}
+            familyId: {type : mongoose.Schema.Types.ObjectId, ref: 'Family', required: true},
+            familyName: {type: String}
         }
     ]
     /*family: {type : mongoose.Schema.Types.ObjectId, ref: 'Family', required: true},
