@@ -119,6 +119,69 @@ router.patch('/:userId',checkAuth, (req, res, next) => {
 
 })
 
+router.patch('/:userId/pw',checkAuth, (req, res, next) => {
+
+    //Altera senha de usuario especifico, identificado por :userId
+
+    const id = req.params.userId;
+    const oldPw = req.body.oldPassword;
+    const newPw = req.body.newPassword;
+
+    User.findById(id)
+        .exec()
+        .then(user => {
+            //console.log(user);
+            if(!user) {
+                return res.status(404).json({
+                    message : 'No user with given Id'
+                });
+            }
+            bcrypt.compare(oldPw, user.password, (err,result) => {
+                if(err) {
+                    return res.status(409).json({
+                        message : 'Wrong old password'
+                    });
+                }
+                if(result){
+                    bcrypt.hash(newPw, 10, (err, hash) => {
+                        if(err) {
+                            return res.status(500).json({
+                                errorCode: err.code,
+                                errorMes: err.message
+                            });
+                        }else {
+                            User.update({_id : id}, {$set : {password : hash}})
+                                .exec()
+                                .then( () =>{
+                                    res.status(200).json({
+                                        message : "Password changed with success!";
+                                    })
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).json({
+                                        error: err
+                                    });
+                                });
+                        }
+                    });
+                }
+                return res.status(401).json({
+                    message : 'Auth failed'
+                });
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
+
+})
+
+
+
 
 router.get('/:userId/invites', checkAuth,(req, res, next) => {
 
