@@ -119,7 +119,7 @@ router.patch('/:userId',checkAuth, (req, res, next) => {
 
 })
 
-router.patch('/:userId/pw',checkAuth, (req, res, next) => {
+router.patch('/:userId/pw', async (req, res, next) => {
 
     //Altera senha de usuario especifico, identificado por :userId
 
@@ -127,53 +127,91 @@ router.patch('/:userId/pw',checkAuth, (req, res, next) => {
     const oldPw = req.body.oldPassword;
     const newPw = req.body.newPassword;
 
-    User.findById(id)
+    /*
+    const newHash = await new Promise((resolve, reject) => {
+        bcrypt.hash("12345", 10, async (err, hash) =>{
+            if(err){
+                console.log("falhou1");
+                reject(err);
+            }else{
+                console.log("foihash : " + hash);
+                resolve(hash);
+            }
+        }) 
+    });
+
+    console.log("aaaaaaaaaaaaaaaa");
+
+    const _equal = await new Promise((resolve, reject) => {
+        bcrypt.compare("12345", newHash, async (err, result) =>{
+            if(err){
+                console.log("n rolou catatau");
+                reject(err);
+            }
+            if(result){
+                console.log("agora foi");
+                resolve(result);
+            }
+            console.log("bateu aq");
+        }) 
+    });
+
+    console.log("hora da verdade " + _equal);
+    */
+
+    const reqResp = await User.findById(id)
         .exec()
-        .then(user => {
-            //console.log(user);
+        .then(async user =>{
+            console.log("chegou1");
             if(!user) {
                 return res.status(404).json({
                     message : 'No user with given Id'
                 });
             }
-            bcrypt.compare(oldPw, user.password, (err,result) => {
-                if(err) {
-                    console.log("ih ala pw 1");
-                    return res.status(409).json({
-                        message : 'Wrong old password'
-                    });
-                }
-                if(result){
-                    console.log("ih ala pw 2");
-                    bcrypt.hash(newPw, 10, (err, hash) => {
-                        if(err) {
-                            console.log("ih ala pw 3");
-                            return res.status(500).json({
-                                errorCode: err.code,
-                                errorMes: err.message
-                            });
-                        }else {
-                            User.update({_id : id}, {$set : {password : hash}})
-                                .exec()
-                                .then( () =>{
-                                    console.log("ih ala pw 4");
-                                    return res.status(200).json({
-                                        message : "Password changed with success!"
-                                    })
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    res.status(500).json({
-                                        error: err
+            //console.log("senha antiga db : " + user.password);
+            //console.log("senha antiga param : " + oldPw);
+
+            const _equal = await new Promise((resolve, reject) => {
+                bcrypt.compare(oldPw, user.password, async (err, result) =>{
+                    if(err){
+                        console.log("n rolou catatau");
+                        reject(err);
+                    }
+                    if(result){
+                        console.log("agora foi");
+                        resolve(result);
+                        const _hash = await new Promise((resolve, reject) => {
+                            bcrypt.hash(newPw, 10, async (err, hash) => {
+                                if(err){
+                                    reject(err);
+                                    return res.status(500).json({
+                                        errorCode: err.code,
+                                        errorMes: err.message
                                     });
-                                });
-                        }
+                                }else{
+                                    const _up = await User.update({_id : id}, {$set : {password : hash}})
+                                                        .exec()
+                                                        .then( () =>{
+                                                            console.log("ih ala pw 4");
+                                                            return res.status(200).json({
+                                                                message : "Password changed with success!"
+                                                            })
+                                                        })
+                                                        .catch(err => {
+                                                            console.log(err);
+                                                            res.status(500).json({
+                                                                error: err
+                                                            });
+                                                        });
+                                }
+                            })
+                        })
+                    }
+                    console.log("bateu aq");
+                    return res.status(401).json({
+                        message : 'Auth failed'
                     });
-                }
-                console.log("ih ala pw 5");
-                return res.status(401).json({
-                    message : 'Auth failed'
-                });
+                }) 
             });
         })
         .catch(err => {
@@ -182,7 +220,6 @@ router.patch('/:userId/pw',checkAuth, (req, res, next) => {
                 error: err
             });
         });
-
 })
 
 
@@ -281,6 +318,7 @@ router.post('/signup', (req, res, next) => {
         else{
             bcrypt.hash(req.body.password, 10, (err, hash) => {
                 if(err) {
+                    console.log("ave maria");
                     return res.status(500).json({
                         errorCode: err.code,
                         errorMes: err.message
@@ -335,21 +373,42 @@ router.post('/signup', (req, res, next) => {
     
 });
 
-router.post('/login', (req, res, next) => {
+router.post('/login', async (req, res, next) => {
 
     //Login de um usuário
-    
+
+    /*
+    const _eq = await new Promise((resolve, reject) => {
+        bcrypt.compare(req.body.password, "$2b$10$n3yJiBOVdX/30rRDLaQ8TuYGvVfHpWd3Vv0xIjip90ib30dlAnVpC", async (err, result) => {
+            if(err){
+                console.log("teste1");
+                reject(err);
+            }
+            if(result){
+                console.log("teste2");
+                resolve(result);
+            }
+            console.log("teste3");
+        });
+    })
+    console.log("resp = " + _eq);
+    */
+
     User.find({email: req.body.email})
     .exec()
     .then(user => {
-        //console.log(user);
+        console.log(user);
         if(user.length < 1) {
             return res.status(401).json({
                 message : 'Auth failed'
             });
         }
+        //console.log("body login: " + req.body.password);
+        //console.log("db login : " + user[0].password);
+
         bcrypt.compare(req.body.password, user[0].password, (err,result) => {
             if(err) {
+                console.log("caiu login 1");
                 return res.status(401).json({
                     message : 'Auth failed'
                 });
@@ -369,6 +428,7 @@ router.post('/login', (req, res, next) => {
                     id: user[0]._id
                 })
             }
+            console.log("caiu login 2");
             return res.status(401).json({
                 message : 'Auth failed'
             });

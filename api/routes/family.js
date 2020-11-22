@@ -268,7 +268,7 @@ router.get('/:familyId/members',checkAuth ,(req, res, next) => {
                 }).exec()
                 .then(members => {
                     members.map(member => {
-                        returnMembers.membersList.push(member.name);
+                        returnMembers.membersList.push(member.name, member._id);
                     });
 
                     console.log("oxi1 " + returnMembers);
@@ -362,7 +362,7 @@ router.post('/:familyId/members',checkAuth, (req, res, next) => {
     
 });
 
-router.get('/:familyId/buylist',checkAuth, (req, res, next) => {
+router.get('/:familyId/buylist',checkAuth,(req, res, next) => {
 
     //Pega a lista de compras de uma familia especifica, dado o id da familia
 
