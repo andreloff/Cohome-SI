@@ -154,7 +154,7 @@ router.patch('/:userId/pw',checkAuth, (req, res, next) => {
                                 .exec()
                                 .then( () =>{
                                     res.status(200).json({
-                                        message : "Password changed with success!";
+                                        message : "Password changed with success!"
                                     })
                                 })
                                 .catch(err => {
