@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const familyRoutes = require('./api/routes/family');
-const inviteRoutes = require('./api/routes/invite');
 const userRoutes = require('./api/routes/user');
 
 const MONGO_HOST = process.env.MONGO_HOST || 'localhost' ;
@@ -46,7 +45,6 @@ app.use((req, res, next) => {
 
 app.use('/user', userRoutes);
 app.use('/family', familyRoutes);
-app.use('/invite', inviteRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');

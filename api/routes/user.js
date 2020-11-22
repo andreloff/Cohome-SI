@@ -119,7 +119,7 @@ router.patch('/:userId',checkAuth, (req, res, next) => {
 
 })
 
-router.patch('/:userId/pw', async (req, res, next) => {
+router.patch('/:userId/pw',checkAuth ,async (req, res, next) => {
 
     //Altera senha de usuario especifico, identificado por :userId
 

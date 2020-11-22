@@ -10,7 +10,6 @@ const InviteList = require('../models/invite');
 const BuyList = require('../models/buyList');
 const TaskList = require('../models/taskList');
 const checkAuth = require('../middleware/check-auth');
-const taskList = require('../models/taskList');
 
 router.get('/',(req, res, next) => {
 
