@@ -251,7 +251,7 @@ router.post('/:familyId/invite', checkAuth,(req, res, next) => {
 });
 
 
-router.get('/:familyId/members', (req, res, next) => {
+router.get('/:familyId/members',checkAuth ,(req, res, next) => {
 
     //Pega todos os membros de uma familia especifica, dado o id da familia
 
