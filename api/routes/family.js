@@ -283,7 +283,7 @@ router.get('/:familyId/members',checkAuth ,(req, res, next) => {
                 }).exec()
                 .then(members => {
                     members.map(member => {
-                        returnMembers.membersList.push(member.name, member._id);
+                        returnMembers.membersList.push(member.name);
                     });
 
                     console.log("oxi1 " + returnMembers);
