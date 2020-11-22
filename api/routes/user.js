@@ -167,16 +167,16 @@ router.get('/:userId/invites', checkAuth,(req, res, next) => {
         });
 })
 
-router.delete('/:userId/invites', checkAuth, (req, res, next) => {
+router.delete('/:userId/invites/:familyId', checkAuth, (req, res, next) => {
 
-    //Retira um convite, especificado pelo familyId (passado no body), da lista do usuario.
+    //Retira um convite, especificado pelo familyId, da lista do usuario.
 
     User.findById(req.params.userId)
     .exec()
     .then(user => {
         const invListId = user.invites;
 
-        InviteList.update({_id : invListId}, { $pull : { inviteList : {familyId : req.body.familyId}}})
+        InviteList.update({_id : invListId}, { $pull : { inviteList : {familyId : req.params.familyId}}})
                 .exec()
                 .then(_result => {
                     console.log("Family's invite removed from user's list!");
