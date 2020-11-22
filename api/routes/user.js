@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const InviteList = require('../models/invite');
 const checkAuth = require('../middleware/check-auth');
+const Family = require('../models/family');
 
 router.get('/', (req, res, next) => {
 
@@ -50,16 +51,28 @@ router.get('/:userId',checkAuth, (req, res, next) => {
             console.log("From Database", user);
             if(user){
 
-                const result = {
-                    name: user.name,
-                    email: user.email,
-                    id: user._id,
-                    birthDate: user.birthTime,
-                    family: user.family,
-                    invites: user.invites
-                }
+                Family.findById(user.family)
+                    .exec()
+                    .then(_fam => {
+                        const result = {
+                            name: user.name,
+                            email: user.email,
+                            id: user._id,
+                            birthDate: user.birthTime,
+                            family: user.family,
+                            familyName: _fam.name,
+                            invites: user.invites
+                        }
 
-                res.status(200).json(result);
+                        res.status(200).json(result);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({error: err});
+                    });
+                
+
+                
             }
             else{
                 res.status(404).json({
