@@ -24,7 +24,7 @@ router.get('/', (req, res, next) => {
                         name: user.name,
                         email: user.email,
                         id: user._id,
-                        birthDate: user.birthTime,
+                        birthDate: user.birthDate,
                         family: user.family,
                         invites: user.invites
                     }
@@ -58,7 +58,7 @@ router.get('/:userId',checkAuth, (req, res, next) => {
                             name: user.name,
                             email: user.email,
                             id: user._id,
-                            birthDate: user.birthTime,
+                            birthDate: user.birthDate,
                             family: user.family,
                             familyName: _fam.name,
                             invites: user.invites
@@ -213,8 +213,8 @@ router.post('/signup', (req, res, next) => {
                         password: hash,
                         name: req.body.name,
                         invites: _invites._id,
-                        family : null
-                        //birthTime: req.body.birthTime
+                        family : null,
+                        birthDate: req.body.birthDate
                     }); 
 
                     user.save()
