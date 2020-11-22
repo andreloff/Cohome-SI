@@ -153,7 +153,7 @@ router.patch('/:userId/pw',checkAuth, (req, res, next) => {
                             User.update({_id : id}, {$set : {password : hash}})
                                 .exec()
                                 .then( () =>{
-                                    res.status(200).json({
+                                    return res.status(200).json({
                                         message : "Password changed with success!"
                                     })
                                 })
