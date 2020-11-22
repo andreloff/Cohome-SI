@@ -54,14 +54,29 @@ router.get('/:userId',checkAuth, (req, res, next) => {
                 Family.findById(user.family)
                     .exec()
                     .then(_fam => {
-                        const result = {
-                            name: user.name,
-                            email: user.email,
-                            id: user._id,
-                            birthDate: user.birthDate,
-                            family: user.family,
-                            familyName: _fam.name,
-                            invites: user.invites
+
+                        var result
+                        if(_fam){
+                            result = {
+                                name: user.name,
+                                email: user.email,
+                                id: user._id,
+                                birthDate: user.birthDate,
+                                family: user.family,
+                                familyName: _fam.name,
+                                invites: user.invites
+                            }
+                        }
+                        else{
+                            result = {
+                                name: user.name,
+                                email: user.email,
+                                id: user._id,
+                                birthDate: user.birthDate,
+                                family: user.family,
+                                familyName: null,
+                                invites: user.invites
+                            }
                         }
 
                         res.status(200).json(result);
