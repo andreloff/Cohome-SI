@@ -9,7 +9,7 @@ const userSchema = mongoose.Schema({
     },
     password: {type : String, required: true},
     name: {type : String , required : true},
-    //birthTime: {type : Date , required : true},
+    birthDate: {type : String , required : true},
     family: {type : mongoose.Schema.Types.ObjectId, ref: 'Family'},
     invites: {type : mongoose.Schema.Types.ObjectId, ref: 'Invite', required: true}
 });

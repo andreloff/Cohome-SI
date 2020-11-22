@@ -15,17 +15,17 @@ router.get('/', (req, res, next) => {
     User.find()
         .select("_id name email family invites")
         .exec()
-        .then(docs => {
+        .then(_users => {
             const response = {
-                count : docs.length,
-                users : docs.map(hmm => {
+                count : _users.length,
+                users : _users.map(user => {
                     return{
-                        name: hmm.name,
-                        email: hmm.email,
-                        id: hmm._id,
-                        //birthTime: hmm.birthTime,
-                        family: hmm.family,
-                        invites: hmm.invites
+                        name: user.name,
+                        email: user.email,
+                        id: user._id,
+                        birthDate: user.birthTime,
+                        family: user.family,
+                        invites: user.invites
                     }
                 })
             }
@@ -46,17 +46,17 @@ router.get('/:userId',checkAuth, (req, res, next) => {
 
     User.findById(id)
         .exec()
-        .then(doc => {
-            console.log("From Database", doc);
-            if(doc){
+        .then(user => {
+            console.log("From Database", user);
+            if(user){
 
                 const result = {
-                    name: doc.name,
-                    email: doc.email,
-                    id: doc._id,
-                    //birthTime: doc.birthTime,
-                    family: doc.family,
-                    invites: doc.invites
+                    name: user.name,
+                    email: user.email,
+                    id: user._id,
+                    birthDate: user.birthTime,
+                    family: user.family,
+                    invites: user.invites
                 }
 
                 res.status(200).json(result);
@@ -72,6 +72,25 @@ router.get('/:userId',checkAuth, (req, res, next) => {
             res.status(500).json({error: err});
         });
 })
+
+router.patch('/:userId',checkAuth, (req, res, next) => {
+
+    //Altera usuario especifico, identificado por :userId
+
+    const id = req.params.userId;
+
+    User.update({_id : id}, {$set : {name : req.body.name, birthDate : req.body.birthDate}})
+        .exec()
+        .then(() =>{
+            res.status(201).json({message : "User updated!"});
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({error: err});
+        });
+
+})
+
 
 router.get('/:userId/invites',checkAuth, (req, res, next) => {
 

@@ -259,6 +259,22 @@ router.get('/:familyId/members', checkAuth,(req, res, next) => {
         .exec()
         .then(family => {
             if(family){
+                var returnMembers = {
+                    membersList : []
+                };
+
+                family.members.map (member => {
+                    User.findById(member._id)
+                        .exec()
+                        .then(_mem => {
+                            returnMembers.membersList.push(_mem.name);
+                        })
+                        .catch( err => {
+                            res.status(500).json({error: err});
+                        });
+                })
+
+                /*
                 const _members = {
                     membersCount : family.members.length,
                     members: family.members.map ( member => {
@@ -267,7 +283,9 @@ router.get('/:familyId/members', checkAuth,(req, res, next) => {
                         }
                     })
                 }
-                res.status(200).json(_members);
+                */
+                console.log(returnMembers);
+                res.status(200).json(returnMembers);
             }
             else{
                 res.status(404).json({
