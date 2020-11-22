@@ -251,7 +251,7 @@ router.post('/:familyId/invite', checkAuth,(req, res, next) => {
 });
 
 
-router.get('/:familyId/members', checkAuth,(req, res, next) => {
+router.get('/:familyId/members', (req, res, next) => {
 
     //Pega todos os membros de uma familia especifica, dado o id da familia
 
@@ -263,29 +263,21 @@ router.get('/:familyId/members', checkAuth,(req, res, next) => {
                     membersList : []
                 };
 
-                family.members.map (member => {
-                    User.findById(member._id)
-                        .exec()
-                        .then(_mem => {
-                            returnMembers.membersList.push(_mem.name);
-                        })
-                        .catch( err => {
-                            res.status(500).json({error: err});
-                        });
-                })
+                User.find({
+                    "_id" : { $in : family.members}
+                }).exec()
+                .then(members => {
+                    members.map(member => {
+                        returnMembers.membersList.push(member.name);
+                    });
 
-                /*
-                const _members = {
-                    membersCount : family.members.length,
-                    members: family.members.map ( member => {
-                        return {
-                            memberId: member._id
-                        }
-                    })
-                }
-                */
-                console.log(returnMembers);
-                res.status(200).json(returnMembers);
+                    console.log("oxi1 " + returnMembers);
+                    res.status(200).json(returnMembers);
+                })
+                .catch( err => {
+                    _res.status(500).json({error: err});
+                });
+
             }
             else{
                 res.status(404).json({
@@ -294,6 +286,7 @@ router.get('/:familyId/members', checkAuth,(req, res, next) => {
             }
         })
         .catch( err => {
+            console.log("esse erro aq");
             res.status(500).json({error: err});
         });
 });
