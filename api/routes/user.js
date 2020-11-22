@@ -138,13 +138,16 @@ router.patch('/:userId/pw',checkAuth, (req, res, next) => {
             }
             bcrypt.compare(oldPw, user.password, (err,result) => {
                 if(err) {
+                    console.log("ih ala pw 1");
                     return res.status(409).json({
                         message : 'Wrong old password'
                     });
                 }
                 if(result){
+                    console.log("ih ala pw 2");
                     bcrypt.hash(newPw, 10, (err, hash) => {
                         if(err) {
+                            console.log("ih ala pw 3");
                             return res.status(500).json({
                                 errorCode: err.code,
                                 errorMes: err.message
@@ -153,6 +156,7 @@ router.patch('/:userId/pw',checkAuth, (req, res, next) => {
                             User.update({_id : id}, {$set : {password : hash}})
                                 .exec()
                                 .then( () =>{
+                                    console.log("ih ala pw 4");
                                     return res.status(200).json({
                                         message : "Password changed with success!"
                                     })
@@ -166,6 +170,7 @@ router.patch('/:userId/pw',checkAuth, (req, res, next) => {
                         }
                     });
                 }
+                console.log("ih ala pw 5");
                 return res.status(401).json({
                     message : 'Auth failed'
                 });
