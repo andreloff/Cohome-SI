@@ -8,7 +8,9 @@ const Family = require('../models/family');
 const User = require('../models/user');
 const InviteList = require('../models/invite');
 const BuyList = require('../models/buyList');
+const TaskList = require('../models/taskList');
 const checkAuth = require('../middleware/check-auth');
+const taskList = require('../models/taskList');
 
 router.get('/',(req, res, next) => {
 
@@ -62,6 +64,7 @@ router.get('/:familyId',checkAuth,(req, res, next) => {
                     id: doc._id,
                     admin: doc.admin,
                     buyList: doc.buyList,
+                    taskList: doc.taskList,
                     members: doc.members.map(mem => {
                         return{
                             memberId: mem._id
@@ -103,17 +106,30 @@ router.post('/',checkAuth, (req, res, next) => {
                     const newBuyList = new BuyList({
                         _id: new mongoose.Types.ObjectId(),
                         products : []
-                    })
+                    });
+
+                    const newTaskList = new TaskList({
+                        _id: new mongoose.Types.ObjectId(),
+                        tasks : []
+                    });
 
                     const family = new Family({
                         _id: new mongoose.Types.ObjectId(),
                         name: req.body.name,
                         admin : req.body.admin,
                         members: newMembers,
-                        buyList: newBuyList
+                        buyList: newBuyList,
+                        taskList : newTaskList
                     });
 
                     newBuyList.save()
+                        .then()
+                        .catch(err =>{
+                            console.log(err);
+                            res.status(500).json({error: err});
+                        });
+
+                    newTaskList.save()
                         .then()
                         .catch(err =>{
                             console.log(err);
@@ -434,6 +450,88 @@ router.patch('/:familyId/buylist',checkAuth, (req, res, next) => {
                     .then(result => {
                         console.log("Buy list updated!");
                         res.status(200).json({message: "Buy list updated!"});
+                    })
+                    .catch( err => {
+                        res.status(500).json({error: err});
+                    });
+        })
+        .catch( err => {
+            res.status(500).json({error: err});
+        });
+    
+});
+
+router.get('/:familyId/taskList',checkAuth,(req, res, next) => {
+
+    //Pega a lista de tarefas de uma familia especifica, dado o id da familia
+
+    Family.findById(req.params.familyId)
+        .exec()
+        .then(family => { 
+            TaskList.findById(family.taskList)
+                    .exec()
+                    .then( taskList => {
+                        const result = {
+                            count : taskList.tasks.length,
+                            tasks : taskList.tasks.map(task =>{
+                                return {
+                                    taskName: task.taskName
+                                }
+                            })
+                        }
+                        res.status(200).json(result);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        return res.status(500).json({error: err});
+                    });
+        })
+        .catch( err => {
+            res.status(500).json({error: err});
+        });
+    
+});
+
+router.post('/:familyId/taskList',checkAuth, (req, res, next) => {
+
+    //Adiciona tarefas a lista de tarefas da familia, ja atualizando
+
+    Family.findById(req.params.familyId)
+        .exec()
+        .then(family => { 
+
+            _newTasks = req.body.tasks;
+
+            TaskList.update({_id : family.taskList}, { $push : {tasks : {$each : _newTasks}}})
+                    .exec()
+                    .then(result => {
+                        console.log("Task list updated!");
+                        res.status(201).json({message : "Task created and list updated!"});
+                    })
+                    .catch( err => {
+                        res.status(500).json({error: err});
+                    });
+        })
+        .catch( err => {
+            res.status(500).json({error: err});
+        });
+    
+});
+
+router.patch('/:familyId/taskList',checkAuth, (req, res, next) => {
+
+    //Atualiza a lista de tarefas depois de uma mudança na lista atual, removendo itens
+    // já feitos
+
+    Family.findById(req.params.familyId)
+        .exec()
+        .then(family => { 
+
+            TaskList.update({_id : family.taskList}, { $set : {tasks : req.body.tasks}})
+                    .exec()
+                    .then(result => {
+                        console.log("tasks list updated!");
+                        res.status(200).json({message: "Task list updated!"});
                     })
                     .catch( err => {
                         res.status(500).json({error: err});
