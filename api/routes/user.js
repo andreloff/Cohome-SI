@@ -120,7 +120,7 @@ router.patch('/:userId',checkAuth, (req, res, next) => {
 })
 
 
-router.get('/:userId/invites',checkAuth, (req, res, next) => {
+router.get('/:userId/invites', checkAuth,(req, res, next) => {
 
     //Pega lista de convites de um usuario especifico identificado pelo id
 
@@ -142,7 +142,8 @@ router.get('/:userId/invites',checkAuth, (req, res, next) => {
                             count : invList.inviteList.length,
                             invites : invList.inviteList.map(inv =>{
                                 return {
-                                    familyId: inv.familyId
+                                    familyId: inv.familyId,
+                                    familyName: inv.familyName
                                 }
                             })
                         }

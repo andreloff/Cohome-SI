@@ -163,7 +163,7 @@ router.post('/',checkAuth, (req, res, next) => {
     
 });
 
-router.post('/:familyId/invite', checkAuth,(req, res, next) => {
+router.post('/:familyId/invite',checkAuth,(req, res, next) => {
 
     //Cria novo convite da família e envia para o usuario, identificado pelo email, 
     // primeiro checando na lista de convites do usuario se ele ja nao foi convidado
