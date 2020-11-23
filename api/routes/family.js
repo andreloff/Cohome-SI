@@ -40,7 +40,6 @@ router.get('/',(req, res, next) => {
             res.status(200).json(response);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({error: err});
         });
 
@@ -55,7 +54,6 @@ router.get('/:familyId',checkAuth,(req, res, next) => {
     Family.findById(id)
         .exec()
         .then(doc => {
-            console.log("From Database", doc);
             if(doc){
 
                 const result = {
@@ -80,7 +78,6 @@ router.get('/:familyId',checkAuth,(req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({error: err});
         });
 
@@ -89,8 +86,6 @@ router.get('/:familyId',checkAuth,(req, res, next) => {
 router.post('/',checkAuth, (req, res, next) => {
 
     //Cria nova familia, já atualizando o perfil do admin com a familia criada
-
-    //console.log(req.file);
 
     User.findById(req.body.admin)
         .exec()
@@ -124,14 +119,12 @@ router.post('/',checkAuth, (req, res, next) => {
                     newBuyList.save()
                         .then()
                         .catch(err =>{
-                            console.log(err);
                             res.status(500).json({error: err});
                         });
 
                     newTaskList.save()
                         .then()
                         .catch(err =>{
-                            console.log(err);
                             res.status(500).json({error: err});
                         });
 
@@ -141,7 +134,6 @@ router.post('/',checkAuth, (req, res, next) => {
                             User.update({_id : req.body.admin}, { $set : {family : family._id}})
                                 .exec()
                                 .then(_result => {
-                                    console.log("Family in user profile updated!");
                                     res.status(201).json({
                                         message: "Family created!",
                                         createdFamily: {
@@ -156,7 +148,6 @@ router.post('/',checkAuth, (req, res, next) => {
                                 });
                         })
                         .catch(err =>{
-                            console.log(err);
                             res.status(500).json({error: err});
                         });
                 }
@@ -171,11 +162,67 @@ router.post('/',checkAuth, (req, res, next) => {
             }
         })
         .catch(err =>{
-            console.log(err);
             res.status(500).json({error: err});
         });
 
     
+});
+
+router.delete('/:familyId',checkAuth, (req, res, next) => {
+
+    //Cria nova familia, já atualizando o perfil do admin com a familia criada
+
+    var buyListId, taskListId;
+    const familyId = req.params.familyId
+
+    Family.findById(familyId)
+        .exec()
+        .then( _family => {
+            if(_family){
+                buyListId = _family.buyList;
+                taskListId = _family.taskList;
+                User.update({_id : _family.admin}, {$set : {family : null}})
+                        .exec()
+                        .then( () =>{
+                            BuyList.remove({_id :buyListId})
+                                .exec()
+                                .then(() =>{
+                                    TaskList.remove({_id :taskListId})
+                                        .exec()
+                                        .then(() =>{
+                                            Family.remove({_id :familyId})
+                                                .exec()
+                                                .then(() => {
+                                                    return res.status(200).json({
+                                                        message : "Family deleted!"
+                                                    })
+                                                })
+                                                .catch(err =>{
+                                                    res.status(500).json({error: err});
+                                                });
+                                        })
+                                        .catch(err =>{
+                                            res.status(500).json({error: err});
+                                        });
+                                })
+                                .catch(err =>{
+                                    res.status(500).json({error: err});
+                                });
+                        })
+                        .catch( err => {
+                            res.status(500).json({error: err});
+                        });
+                
+            }
+            else{
+                return res.status(404).json({
+                    message: "Family not found with given Id"
+                })
+            }
+        })
+        .catch(err =>{
+            res.status(500).json({error: err});
+        });
 });
 
 router.post('/:familyId/invite',checkAuth,(req, res, next) => {
@@ -185,20 +232,14 @@ router.post('/:familyId/invite',checkAuth,(req, res, next) => {
 
     const _famId = req.params.familyId;
 
-    
-
-    //console.log("bateu aq 1");
-
     User.find({email: req.body.email})
         .exec()
         .then(users => {
-            //console.log("bateu aq 2");
             if(users.length < 1) {
                 return res.status(404).json({
                     message : 'No email found'
                 });
             }
-            //console.log("bateu aq 3");
             const invListId = users[0].invites;
             var canInvite = true;
 
@@ -207,8 +248,6 @@ router.post('/:familyId/invite',checkAuth,(req, res, next) => {
                 .then(_invList => {
                     for(var i = 0 ; i < _invList.inviteList.length ; i++) 
                     {
-                        console.log("list : " + _invList.inviteList[i].familyId + " famId : " + _famId);
-
                         if(_invList.inviteList[i].familyId == _famId){
                             canInvite = false;
                         }
@@ -229,19 +268,16 @@ router.post('/:familyId/invite',checkAuth,(req, res, next) => {
                                 { $push : {inviteList : _invite}}
                             ).exec()
                             .then( result => {
-                                //console.log("bateu aq 4" + result);
                                 res.status(200).json({
                                     message : "Invite created and sent!"
                                 });
                             })
                             .catch(err =>{
-                                console.log(err);
                                 return res.status(500).json({error: err});
                             });
 
                         })
                         .catch(err =>{
-                            console.log(err);
                             return res.status(500).json({error: err});
                         });
                         
@@ -249,18 +285,14 @@ router.post('/:familyId/invite',checkAuth,(req, res, next) => {
                     else
                     {
                         const _error = "User already has this family's invite";
-                        console.log(_error);
                         return res.status(409).json({error: _error});
                     }
                 })
                 .catch(err =>{
-                    console.log(err);
                     return res.status(500).json({error: err});
                 });
-            //console.log(invListId);
         })
         .catch(err =>{
-            console.log(err);
             res.status(500).json({error: err});
         });
 });
@@ -274,20 +306,21 @@ router.get('/:familyId/members',checkAuth ,(req, res, next) => {
         .exec()
         .then(family => {
             if(family){
+
                 var returnMembers = {
                     membersList : []
                 };
-
                 User.find({
                     "_id" : { $in : family.members}
                 }).exec()
                 .then(members => {
-                    members.map(member => {
-                        returnMembers.membersList.push(member.name);
+                    returnMembers.membersList = members.map(member => {
+                        return {
+                            memberName : member.name,
+                            memberId : member._id
+                        };
                     });
-
-                    console.log("oxi1 " + returnMembers);
-                    res.status(200).json(returnMembers);
+                    return res.status(200).json(returnMembers);
                 })
                 .catch( err => {
                     _res.status(500).json({error: err});
@@ -301,7 +334,6 @@ router.get('/:familyId/members',checkAuth ,(req, res, next) => {
             }
         })
         .catch( err => {
-            console.log("esse erro aq");
             res.status(500).json({error: err});
         });
 });
@@ -324,41 +356,45 @@ router.post('/:familyId/members',checkAuth, (req, res, next) => {
                 Family.findById(req.params.familyId)
                     .exec()
                     .then( _family => {
-                        if(_family.members.length <= 13){
-                            InviteList.update({_id : _user.invites}, { $pull : { inviteList : {familyId : req.params.familyId}}})
-                                .exec()
-                                .then(_result => {
-                                    console.log("Family's invite removed from user's list!")
-                                    User.update(
-                                        {_id : _userId}, 
-                                        { $set : {family : req.params.familyId}})
-                                        .exec()
-                                        .then(result => {
-                                            console.log("Family in user profile updated!");
-                                
-                                            Family.update({_id : req.params.familyId}, { $push : { members : req.body.userId}})
-                                                .exec()
-                                                .then(result => {
-                                                    console.log("User added to the family");
-                                                    res.status(200).json({
-                                                        message: "User's family updated and User added to the family!"
-                                                    });
-                                                })
-                                                .catch( err => {
-                                                    res.status(500).json({error: err});
-                                                })
-                                        })
-                                        .catch( err => {
-                                            res.status(500).json({error: err});
-                                        });
-                                })
-                                .catch( err => {
-                                    res.status(500).json({error: err});
-                                });
+                        if(_family){
+                            if(_family.members.length <= 20){
+                                InviteList.update({_id : _user.invites}, { $pull : { inviteList : {familyId : req.params.familyId}}})
+                                    .exec()
+                                    .then(_result => {
+                                        User.update(
+                                            {_id : _userId}, 
+                                            { $set : {family : req.params.familyId}})
+                                            .exec()
+                                            .then(result => {
+                                                
+                                    
+                                                Family.update({_id : req.params.familyId}, { $push : { members : req.body.userId}})
+                                                    .exec()
+                                                    .then(result => {
+                                                        
+                                                        res.status(200).json({
+                                                            message: "User's family updated and User added to the family!"
+                                                        });
+                                                    })
+                                                    .catch( err => {
+                                                        res.status(500).json({error: err});
+                                                    })
+                                            })
+                                            .catch( err => {
+                                                res.status(500).json({error: err});
+                                            });
+                                    })
+                                    .catch( err => {
+                                        res.status(500).json({error: err});
+                                    });
+                            }
+                            else{
+                                res.status(409).json({message: "Family with max amount of members!"});
+                            }
+                        }else{
+                            return res.status(404).json({message: "Family not found with given Id"});
                         }
-                        else{
-                            res.status(409).json({message: "Family with max amount of members!"});
-                        }
+                        
                     })
                     .catch( err => {
                         res.status(500).json({error: err});
@@ -369,6 +405,53 @@ router.post('/:familyId/members',checkAuth, (req, res, next) => {
                 res.status(409).json({message: "User already has a family!"});
             }
             
+        })
+        .catch( err => {
+            res.status(500).json({error: err});
+        });
+
+    
+});
+
+router.delete('/:familyId/members/:userId',checkAuth, (req, res, next) => {
+
+    ///Adiciona membro na familia, primeiro checando se o usuario ja tem familia
+    /// atualizando a lista de convites do usuario
+    /// depois atualiza a familia no perfil do usuario,
+    /// depois atualiza a lista da familia
+
+    const _userId = req.params.userId;
+    const _familyId = req.params.familyId;
+
+    User.findById(_userId)
+        .exec()
+        .then( _user => {
+            if(_user){
+                if(_user.family != null){
+
+                    User.update({_id : _userId}, {$set : {family : null}})
+                        .exec()
+                        .then( () =>{
+                            Family.update({_id : _familyId} , {$pull : {members : _userId}})
+                                .exec()
+                                .then(() =>{
+                                    return res.status(200).json({message : "User removed from family!"});
+                                })
+                                .catch( err => {
+                                    res.status(500).json({error: err});
+                                });
+                        })
+                        .catch( err => {
+                            res.status(500).json({error: err});
+                        });
+                }
+                else{
+                    res.status(409).json({message: "User does not have a family!"});
+                }
+            }
+            else{
+                res.status(404).json({message: "User not found with given Id!"});
+            }
         })
         .catch( err => {
             res.status(500).json({error: err});
@@ -399,7 +482,7 @@ router.get('/:familyId/buylist',checkAuth,(req, res, next) => {
                         res.status(200).json(result);
                     })
                     .catch(err => {
-                        console.log(err);
+                        
                         return res.status(500).json({error: err});
                     });
         })
@@ -422,7 +505,7 @@ router.post('/:familyId/buylist',checkAuth, (req, res, next) => {
             BuyList.update({_id : family.buyList}, { $push : {products : {$each : _newProducts}}})
                     .exec()
                     .then(result => {
-                        console.log("Buy list updated!");
+                        
                         res.status(201).json({message : "Product created and list updated!"});
                     })
                     .catch( err => {
@@ -447,7 +530,7 @@ router.patch('/:familyId/buylist',checkAuth, (req, res, next) => {
             BuyList.update({_id : family.buyList}, { $set : {products : req.body.products}})
                     .exec()
                     .then(result => {
-                        console.log("Buy list updated!");
+                        
                         res.status(200).json({message: "Buy list updated!"});
                     })
                     .catch( err => {
@@ -481,7 +564,7 @@ router.get('/:familyId/taskList',checkAuth,(req, res, next) => {
                         res.status(200).json(result);
                     })
                     .catch(err => {
-                        console.log(err);
+                        
                         return res.status(500).json({error: err});
                     });
         })
@@ -504,7 +587,7 @@ router.post('/:familyId/taskList',checkAuth, (req, res, next) => {
             TaskList.update({_id : family.taskList}, { $push : {tasks : {$each : _newTasks}}})
                     .exec()
                     .then(result => {
-                        console.log("Task list updated!");
+                        
                         res.status(201).json({message : "Task created and list updated!"});
                     })
                     .catch( err => {
@@ -529,7 +612,7 @@ router.patch('/:familyId/taskList',checkAuth, (req, res, next) => {
             TaskList.update({_id : family.taskList}, { $set : {tasks : req.body.tasks}})
                     .exec()
                     .then(result => {
-                        console.log("tasks list updated!");
+                        
                         res.status(200).json({message: "Task list updated!"});
                     })
                     .catch( err => {
